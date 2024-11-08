@@ -3,9 +3,34 @@
 import { Transaction } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import TransactionTypeBadge from "../_components/type-badge";
+import { Button } from "@/app/_components/ui/button";
+import { Edit, TrashIcon } from "lucide-react";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
+
+export const TRANSACTION_CATEGORY_LABELS = {
+  HOUSING: "Moradia",
+  TRANSPORTATION: "Transporte",
+  FOOD: "Alimentação",
+  HEALTH: "Saúde",
+  ENTERTAINMENT: "Entretenimento",
+  UTILITY: "Utilidades",
+  SALARY: "Salário",
+  EDUCATION: "Educação",
+  OTHER: "Outros",
+};
+
+export const TRANSACTION_PAYMENT_METHOD_LABELS = {
+  CREDIT_CARD: "Cartão de Crédito",
+  DEBIT_CARD: "Cartão de Débito",
+  CASH: "Dinheiro",
+  BANK_TRANSFER: "Transferência Bancária",
+  BANK_SLIP: "Boleto Bancário",
+  PIX: "PIX",
+  PAYPAL: "PayPal",
+  OTHER: "Outros",
+};
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
   {
@@ -22,6 +47,8 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "category",
     header: "Categoria",
+    cell: ({ row: { original: transaction } }) =>
+      TRANSACTION_CATEGORY_LABELS[transaction.category],
   },
   {
     accessorKey: "description",
@@ -30,17 +57,42 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "paymentMethod",
     header: "Método de Pagamento",
+    cell: ({ row: { original: transaction } }) =>
+      TRANSACTION_PAYMENT_METHOD_LABELS[transaction.paymentMethod],
   },
   {
     accessorKey: "date",
     header: "Data",
+    cell: ({ row: { original: transaction } }) =>
+      new Date(transaction.date).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }),
   },
   {
     accessorKey: "amount",
     header: "Valor",
+    cell: ({ row: { original: transaction } }) =>
+      new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(Number(transaction.amount)),
   },
   {
     accessorKey: "actions",
-    header: "",
+    header: "Ações",
+    cell: () => {
+      return (
+        <div>
+          <Button variant="ghost" className="text-muted-foreground">
+            <Edit size="icon" />
+          </Button>
+          <Button variant="ghost" className="text-muted-foreground">
+            <TrashIcon size="icon" />
+          </Button>
+        </div>
+      );
+    },
   },
 ];
